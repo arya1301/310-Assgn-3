@@ -4,3 +4,62 @@ rna_data<-read.csv("RNAseq_BLCA.csv",fill=TRUE,header=FALSE)
 #transposing the rna data
 rna_DATA<-data.frame(t(rna_data))
 I can edit this file 
+
+Q.1
+Why are areas of the genome with high GC content hard to sequence?
+Guanine and Cytosine have 3 hydrogen bonds linking them together whereas Adenine and Thymine are only linked together by two hydrogen bonds. During genome sequencing,  In the unwinding of the DNA helix, the 
+
+Q.2
+Best Global Alignment between the two following sequences:
+
+Q.3
+
+Q3.1
+```{r}
+bam.sam <- read.csv("single_cell_RNA_seq_bam.sam", nrows=73, sep="\t", header=FALSE,
+fill=TRUE)
+```
+According to the SaM/Bam File: SN corresponds to the single base pair name and LN corresponds to the 
+
+Q3.2: Length of the X chromosome
+```{r}
+print(bam.sam[22,"V3"]) 
+
+```
+ength of the X chromosome is 171031299 base pairs. We know it is row 22 because the X chromosome is the 22nd chromosome in the genome. 
+
+
+Q4.1
+```{r}
+sam <- read.csv("single_cell_RNA_seq_bam.sam", sep="\t", header=FALSE,
+comment.char="@", col.names = paste0("V",seq_len(30)), fill=TRUE)
+sam <- sam[paste0("V",seq_len(11))]
+
+```
+
+Q4.2 Print 10th row of the data frame
+```{r}
+print(sam[10,])
+```
+
+The column which tells us how the read was aligned is V3, in this case the sequence was aligned with the reference sequence (1).
+
+Q4.3 How many reads align to chromosome X
+```{r}
+length(which(sam$V3 == "X"))
+```
+5999 reads align with the X chromosome
+
+Q4.4 What is the mean of base quality of alignments
+```{r}
+for (i in sam$V3){
+  if(i == "X"){
+    
+  }
+}
+```
+
+Q4.5 Plot patterns of base quality of reads as boxplot
+```{r}
+
+```
