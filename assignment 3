@@ -1,0 +1,5 @@
+clinical_data<- read.table(file="data_clinical_patient.txt",sep='\t',fill=TRUE,header=TRUE)
+mutations_data<-read.table(file="data_mutations.txt",sep='\t',fill=TRUE,header=TRUE,quote = "")
+rna_data<-read.csv("RNAseq_BLCA.csv",fill=TRUE,header=FALSE)
+#transposing the rna data
+rna_DATA<-data.frame(t(rna_data))
