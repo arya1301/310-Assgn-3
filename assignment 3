@@ -1,4 +1,12 @@
+---
+title: "Assignment 3"
+author: '49101710'
+date: "2023-11-08"
+output: html_document
+---
+
 ```{r}
+library(dplyr)
 needleman = function(seq1, seq2, gap, mismatch, match){
   
   # Stop conditions
@@ -72,4 +80,44 @@ needleman = function(seq1, seq2, gap, mismatch, match){
 
 
 needleman("ATTCGAC", "ATCAC", -2, -5, 1)
+```
+
+Q4.1
+```{r}
+sam <- read.csv("single_cell_RNA_seq_bam.sam", sep="\t", header=FALSE,
+comment.char="@", col.names = paste0("V",seq_len(30)), fill=TRUE)
+sam <- sam[paste0("V",seq_len(11))]
+
+dim(sam)
+
+```
+There are 146346 reads in the BAM file
+
+Q4.2
+
+```{r}
+print(sam[10,])
+```
+V3 is the column referring to the reference alignment. V11 corresponds to the ASCII of base quality or "QUAL" in the appendix.
+
+Q4.3
+```{r}
+align_X <- sum(sam$V3 == "X")
+align_X
+```
+There are 5999 reads that are aligned to chromosome X
+
+Q4.4
+```{r}
+sam_X <- sam %>% filter(sam$V3 == "X")
+dim(sam_X)
+
+mean <- mean(sam_X$V5)
+mean
+print("note that this includes mapping quality of 255 which means quality is not available")
+sam_X <- sam_X %>% filter(sam_X$V5 != 255)
+dim(sam_X)
+print("The following is the mean with 255's removed, where there are 3890 reads compared to 5999 from before")
+mean <- mean(sam_X$V5)
+mean
 ```
