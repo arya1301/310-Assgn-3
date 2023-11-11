@@ -63,3 +63,22 @@ Q4.5 Plot patterns of base quality of reads as boxplot
 ```{r}
 
 ```
+
+Q4.6  what column contains the leftmost mapping position of the reads?
+```{r}
+min(bam.sam$V3)
+```
+
+Q4.7 Hspa8 leftmost mapping positions
+```{r}
+length(which(sam$V4 > "40801273" & sam$V4 < "40805199"))
+```
+Chromosome 9 goes from bases 40801273 - 40805199
+
+Q4.8 Mapping alignment
+```{r}
+length(which(sam$V5< "50"))
+
+```
+
+
