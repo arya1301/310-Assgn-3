@@ -81,4 +81,53 @@ length(which(sam$V5< "50"))
 
 ```
 
+```
+Q5.1
+```{r}
+vcf_con <- file("RNA_seq_annotated_variants.vcf", open="r")
+vcf_file <- readLines(vcf_con)
+close(vcf_con)
+vcf <- data.frame(vcf_file)
+header <- vcf[grepl("##", vcf$vcf_file), ]
+factor(header)
+variants <- read.csv("RNA_seq_annotated_variants.vcf", skip=length(header),
+header=TRUE, sep="\t")
+
+#print the variants first row
+variants[1,]
+```
+The reference base pair for the genome is G and the alternative base pair is A. 
+
+Q5.2
+```{r}
+strsplit(as.character(variants$INFO[1]),"ANN")
+
+```
+Q5.3
+```{r}
+strsplit(as.character(variants$INFO[1]), ",")
+```
+
+Q5.4
+
+Part One: Print line 683
+```{r}
+variants[683,]
+```
+The genome reference base pair is ACAGGGG and the alternative is A.
+
+Part Two: Split info sequence
+```{r}
+strsplit(variants$INFO[683], "ANN")
+```
+Part Three: Split info sequence in new way
+```{r}
+strsplit(variants$INFO[683], ",")
+```
+Q5.5
+```{r}
+
+```
+
+
 
