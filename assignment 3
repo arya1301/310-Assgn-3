@@ -200,7 +200,3 @@ sam_Tomato <- sam[(sam$V3 == "tdTomato"), ]
 dim(sam_Tomato)
 ```
 There are a total of 63 reads that align to tdTomato. As the hint suggests, the fluorescent marker could be used for studying cell populations under a microscope, where movements of the cell are visible through the fluorescence and we would then be able to label or mark them. The cell would emit fluroscence if the reads are accurate since they are tagged with the fluorescent marker which would reflect or shine light when a certain wavelength of light is shined onto them.
-
-mean <- mean(sam_X$V5)
-mean
-```
