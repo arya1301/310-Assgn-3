@@ -247,3 +247,27 @@ Okay for 5.5 im confused whether we need to do what we did with the previous que
 so for eg:
  out of 836 observations
  400 has frameshifts, 500 has nonsynonymos or synonymous snvs, 300 with missense...
+Assuming we are to categorize these variants in terms of punitive impact: HIGH, MODERATE, MODIFIER, or LOW.
+
+```{r}
+df <- as.character((variants$INFO))
+df <- as.data.frame(df)
+for(i in 1:836){
+  df[i,2] <- grepl("HIGH", df[i,1])  
+  df[i,3] <- grepl("MODERATE", df[i,1])
+  df[i,4] <- grepl("LOW", df[i,1])
+  df[i,5] <- grepl("MODIFIER", df[i,1])
+}
+
+dfH <- grep("TRUE", df$V2)
+dfME <- grep("TRUE", df$V3)
+dfL <- grep("TRUE", df$V4)
+dfMR <- grep("TRUE", df$V5)
+length(dfH)
+length(dfME)
+length(dfL)
+length(dfMR)
+```
+4 HIGH, 74 Moderate, 44 LOW, and 819 MODIFIER punitive impact variants.
+
+Q5.6
