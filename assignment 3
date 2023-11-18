@@ -81,6 +81,16 @@ needleman = function(seq1, seq2, gap, mismatch, match){
 
 needleman("ATTCGAC", "ATCAC", -2, -5, 1)
 ```
+Q3.1
+```{r}
+read.csv("single_cell_RNA_seq_bam.sam", nrows=73, sep="\t", header=FALSE,
+fill=TRUE)
+```
+RN indicates the reference sequence name while LN indicates the reference sequence length.
+
+Q3.2
+
+The reference sequence length, LN, of chromosome X is 171031299 as seen from the header in page 3 above, row = 22.
 
 Q4.1
 ```{r}
@@ -129,20 +139,19 @@ Mean of all reads is under "total_meanX"
 Q4.5
 
 ```{r}
-temp1 <- matrix(NA, nrow = 14634, ncol = 58)
-for (i in 1:14634){
+temp1 <- matrix(NA, nrow = 146346, ncol = 58)
+for (i in 1:146346){
   
   temp <- unlist(strsplit(sam$V11[i], split = ""))
   
   for (m in 1:58){
   
-    tempo <- utf8ToInt(temp[m])
+    tempo <- utf8ToInt(temp[m]) - 33
     
     temp1[i, m] <- tempo
     
   }
 }
-temp1 <- temp1 - 33
 temp1 <- as.data.frame(temp1)
 
 library(ggplot2)
@@ -153,13 +162,12 @@ quantiles <- apply(temp1, 2, quantile, probs = c(0, 0.25, 0.5, 0.75, 1))
 
 melted_data <- melt(quantiles, varnames = c("Quantile", "Variable"))
 
-ggplot(melted_data, aes(x = Variable, y = value)) +
+ggplot(melted_data, aes(x = Variable, y = value, fill = Variable)) +
   geom_boxplot() +
   labs(title = "Boxplot of Quantiles for Each Variable",
        x = "Base",
        y = "Base Score") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) + 
+  theme(axis.text.x = element_text(angle = 0, hjust = 1)) + theme_minimal() + 
   scale_x_discrete(breaks = unique(melted_data$Variable)
                    [seq(1, length(unique(melted_data$Variable)), 5)])
 
@@ -199,7 +207,7 @@ Q4.10
 sam_Tomato <- sam[(sam$V3 == "tdTomato"), ]
 dim(sam_Tomato)
 ```
-There are a total of 63 reads that align to tdTomato. As the hint suggests, the fluorescent marker could be used for studying cell populations under a microscope, where movements of the cell are visible through the fluorescence and we would then be able to label or mark them. The cell would emit fluroscence if the reads are accurate since they are tagged with the fluorescent marker which would reflect or shine light when a certain wavelength of light is shined onto them.
+There are a total of 63 reads that align to tdTomato. As the hint suggests, the fluorescent marker could be used for studying cell populations under a microscope, where movements of the cell are visible through the fluorescence and we would then be able to label or mark them. The cell would emit fluroscence if the reads are accurate since they are tagged with the fluorescent marker which would reflect or shine light when a certain wavelength of light is shined onto them. But on a sample of 146346 cells, 63 affected cells are very limited and would be hard to spot but none the less possible.
 
 Q5.1
 
@@ -257,6 +265,7 @@ for(i in 1:836){
   df[i,3] <- grepl("MODERATE", df[i,1])
   df[i,4] <- grepl("LOW", df[i,1])
   df[i,5] <- grepl("MODIFIER", df[i,1])
+  df[i,6] <- grepl("protein_coding", df[i,1])
 }
 
 dfH <- grep("TRUE", df$V2)
@@ -271,3 +280,60 @@ length(dfMR)
 4 HIGH, 74 Moderate, 44 LOW, and 819 MODIFIER punitive impact variants.
 
 Q5.6
+
+A frameshift variant is when the the mutation or variant changes the reading frame of the entire read. It would have a greater effect on the resultant protein than a missense read. Missense read is a mutation in one or more bases/nucleotide possibily resulting in the change of one amino acid in the traslation sequence. Depending on the number of bases mutated, a frameshift variant would have a greater effect since a missense, if small, would only effect the production of a single or two amino acids making a different protein overall or possibly the same one. A shift in reading frame makes it so the possibility of making the same protein is drastically reduced since this shift would change the set codons in the rest of the transcript.
+
+Q5.7 
+
+```{r}
+
+df1 <- as.data.frame(as.character((variants$INFO)))
+for (i in 1:836){
+  df1[i,2] <- grepl("intron_variant", df1[i,1])
+  
+}
+total_intron_variant <- sum(df1$V2 == TRUE)
+total_intron_variant
+```
+There is a total of 476 variants that are labeled as intron variants out of a total of 836 variants. Assuming there is no overlap between intronic and exonic variants...
+
+Q5.8
+
+filter the dataset in question 5.5 to have the HIGH column as TRUE
+
+```{r}
+df2 <- df[(df$V2 == TRUE & df$V6 == TRUE),]
+head(df2)
+```
+The listed variants are the ones that have been categorized as high punitive impact.
+respectively, genes Ddx1, Rps14, Rps19, Hnrlpl have been highly affected.
+The last three genes had either an incomplete transcript, no stop or start codon, realignment, or a combination of mentioned error lines.
+
+Q5.9
+
+Strelka, like other variant calling methods, rely on short read alignments. Having a 60bp read is stretching it already and searching for insertions would mean the bp would be greater than 60 making it too long for the variant caller. If the insertion makes the read longer than the read length, then there would be a partial read. Longer insertions may also lead to false negatives since the variant caller may not be accurately able to determine the insertion.
+
+Q5.10
+
+```{r}
+dsd <- data.frame(AD = NA, ADV = NA, ADR = NA, ADA = NA, VAF = NA)
+ADV <- list()
+AD <- list()
+ds <- strsplit(as.character(variants$FORMAT), split = ":")
+for(i in 1:836){
+  AD <- min(grep("AD", ds[[i]]))
+  dsd[i,1] <- AD
+  dsd[i,2] <- strsplit((variants$ws20171223_MPs_tomatoMuscle8wkQuiescent201), split = ":")[[i]][AD]
+}
+dss <- strsplit(dsd$ADV, split = ",")
+
+for (i in 1:836){
+
+  dsd[i,3] <- as.integer(dss[[i]][1])
+  dsd[i,4] <- as.integer(dss[[i]][2])
+  dsd[i,5] <- dsd[i,4] / (dsd[i,3] + dsd[i,4])
+}
+boxplot(dsd$VAF)
+
+
+```
