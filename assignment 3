@@ -333,7 +333,11 @@ for (i in 1:836){
   dsd[i,4] <- as.integer(dss[[i]][2])
   dsd[i,5] <- dsd[i,4] / (dsd[i,3] + dsd[i,4])
 }
+
+dsf <- dsd[dsd$VAF > 0.05,]
+
 boxplot(dsd$VAF)
 
 
 ```
+Out of 836 variant entries, 823 variants have VAF's > 5% or > 0.05
