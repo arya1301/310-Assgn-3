@@ -198,7 +198,7 @@ Q4.10
 sam_Tomato <- sam[(sam$V3 == "tdTomato"), ]
 dim(sam_Tomato)
 ```
-There are a total of 63 reads that align to tdTomato. As the hint suggests, the fluorescent marker could be used for studying cell populations under a microscope, where movements of the cell are visible through the fluorescence and we would then be able to label or mark them. The cell would emit fluroscence if the reads are accurate since they are tagged with the fluorescent marker which would reflect or shine light when a certain wavelength of light is shined onto them. But on a sample of 146346 cells, 63 affected cells are very limited and would be hard to spot but none the less possible.
+There are a total of 63 reads that align to tdTomato. As the hint suggests, the fluorescent marker could be used for studying cell populations under a microscope, where movements of the cell are visible through the fluorescence and we would then be able to label or mark them. The cell would emit fluoroscence if the reads are accurate since they are tagged with the fluorescent marker which would reflect or shine light when a certain wavelength of light is shined onto them. But on a sample of 146346 cells, 63 affected cells are very limited and would be hard to spot but none the less possible.
 
 Q5.1
 
@@ -223,12 +223,10 @@ Qfp2 <- strsplit(as.character(variants[1,8]), split = ";")
 Qfp2 <- strsplit(unlist(Qfp2), split = ",")
 print(Qfp2)
 ```
-I might not have needed to seperate with the use of commas but it seemed much more readable. Also, the value for after "ANN" is everything above.
-I'm confused whether the question is asking whether we should do this for the entire first chromosome variants or just the first row...
 
 Q5.3
 
-Same as above code. Using the first line post "ANN", we can see the alternative "A" is an intron variant used in a transcript for protein coding, what 2/21 is after protein coding probably signifies the specific protein or the place in the chain of production in the transcript. Also has a "MODIFIER" putative impact?
+Same as above code. Using the first line post "ANN", we can see the alternative "A" is an intron variant used in a transcript for protein coding, what 2/21 is after protein coding probably signifies the specific protein or the index in the chain of production in the transcript. Also has a "MODIFIER" putative impact which indicates the variant type, which can be seen in the VCF annotation appendix where different variant types are categorized into MODIFIER, MODERATE, LOW, and HIGH.
 
 Q5.4
 
@@ -238,14 +236,10 @@ Qfp4 <- strsplit(as.character(variants[683,8]), split = ";")
 Qfp4 <- strsplit(unlist(Qfp4), split = ",")
 print(Qfp4)
 ```
-reference: ACAGGGG, Alternative: A. According to the first line again, the annotation says the alternative "A" is a frameshift variant, meaning it induces frameshift, a splice acceptor variant, splice region variant, and an intron variant where putative impact is "HIGH". It is a transcript used for protein cading as the questions before.Variant has also been realigned to the 3' position within the transcript to comply with HGVS specification. In this case, the gene "RPS19" is affected.
+reference: ACAGGGG, Alternative: A. According to the first line again, the annotation says the alternative "A" is a frameshift variant, meaning it induces frameshift, a splice acceptor variant, splice region variant, and an intron variant where putative impact is "HIGH". It is a transcript used for protein coding as the questions before.Variant has also been realigned to the 3' position within the transcript to comply with HGVS specification. In this case, the gene "RPS19" is affected.
 
 Q5.5
 
-Okay for 5.5 im confused whether we need to do what we did with the previous questions but use R to sort or sum the amount of different kind of variants and give a total for them... 
-so for eg:
- out of 836 observations
- 400 has frameshifts, 500 has nonsynonymos or synonymous snvs, 300 with missense...
 Assuming we are to categorize these variants in terms of punitive impact: HIGH, MODERATE, MODIFIER, or LOW.
 
 ```{r}
@@ -290,7 +284,7 @@ There is a total of 476 variants that are labeled as intron variants out of a to
 
 Q5.8
 
-filter the dataset in question 5.5 to have the HIGH column as TRUE
+filter the dataset in question 5.5 to have the HIGH column as TRUE and protein_coding column as TRUE
 
 ```{r}
 df2 <- df[(df$V2 == TRUE & df$V6 == TRUE),]
@@ -328,9 +322,11 @@ for (i in 1:836){
 boxplot(dsd$VAF)
 
 variants$VAF <- dsd$VAF
+variants$coding_regions <- df$V6
 dsf <- variants[variants$VAF > 0.05,]
-dsf$coding_regions <- grepl()
-
-
+dim(dsf)
+dsf <- variants[(variants$VAF > 0.05 & variants$coding_regions == TRUE),]
+dim(dsf)
 ```
 Out of 836 variant entries, 823 variants have VAF's > 5% or > 0.05
+Then 688 variants have a VAF > 0.05 while being in a coding region/protein_coding.
