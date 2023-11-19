@@ -4,82 +4,73 @@ author: '49101710'
 date: "2023-11-08"
 output: html_document
 ---
-
+ATTCGAC
+ATCAC
 ```{r}
 library(dplyr)
-needleman = function(seq1, seq2, gap, mismatch, match){
+
+seq1 <- "ATCAC"
+seq2 <- "ATTCGAC"
+match <- 1
+mismatch <- -1
+gap <- -2
+
+len1 = nchar(seq1)
+len2 = nchar(seq2) 
+seq1 = unlist(strsplit(seq1, split = "")) 
+seq2 = unlist(strsplit(seq2, split = "")) 
   
-  # Stop conditions
-  stopifnot(gap <= 0) # check if penalty negative
-  stopifnot(mismatch <= 0)  # check if penalty negative
-  stopifnot(match >= 0)  # check if score positive
+M = matrix(0, nrow = len1 + 1, ncol = len2 + 1) 
+rownames(M) = c("-", seq1)
+colnames(M) = c("-", seq2) 
+M[1, ] = cumsum(c(0, rep(gap, len2))) 
+M[, 1] = cumsum(c(0, rep(gap, len1)))
   
-  # Initialize col and rownames for matrices
-  len1 = nchar(seq1); len2 = nchar(seq2) # Save number of chars in each sequence
-  seq1 = unlist(strsplit(seq1, split = "")) # convert seq to character vector
-  seq2 = unlist(strsplit(seq2, split = "")) # convert seq to character vector
+D = matrix(0, nrow = len1 + 1, ncol = len2 + 1) 
+rownames(D) = c("-", seq1) 
+colnames(D) = c("-", seq2) 
+D[1, ] = rep("left") 
+D[, 1] = rep("top") 
+type = c("dia", "left", "top")
   
-  # Initialize matrix M (for scores)
-  M = matrix(0, nrow = len1 + 1, ncol = len2 + 1) # Initialize matrix
-  rownames(M) = c("-", seq1) # assign seq chars to matrix names
-  colnames(M) = c("-", seq2) # assign seq chars to matrix names
-  M[1, ] = cumsum(c(0, rep(gap, len2))) # Fill 1st row with gap penalites
-  M[, 1] = cumsum(c(0, rep(gap, len1))) # Fill 1st col with gap penalites
-  View(M)
-  
-  # Initialize matrix D (for directions)
-  D = matrix(0, nrow = len1 + 1, ncol = len2 + 1) # Initialize matrix
-  rownames(D) = c("-", seq1) # assign seq chars to matrix names
-  colnames(D) = c("-", seq2) # assign seq chars to matrix names
-  D[1, ] = rep("hor") # Fill 1st row with "hor" for horizontal moves
-  D[, 1] = rep("ver") # Fill 1st col with "ver" for vertical moves
-  type = c("dia", "hor", "ver") # Lookup vector
-  View(D)
-  
-  # Compute scores and save moves
-  for (i in 2:(len1 + 1)){# for every (initially zero) row
-    for (j in 2:(len2 + 1)){# for every (initially zero) col
-      hor = M[i, j - 1] + gap # horizontal move = gap for seq1
-      ver = M[i - 1, j] + gap # vertical move = gap for seq2 
-      dia = ifelse(rownames(M)[i] == colnames(M)[j], # diagonal = ifelse(chars equal, match, mismatch) 
-                   M[i - 1, j - 1] + match, 
-                   M[i - 1, j - 1] + mismatch)
-      M[i, j] = max(dia, hor, ver) # Save current (best) score in M
-      D[i, j] = type[which.max(c(dia, hor, ver))] # Save direction of move in D
-    }
-  } 
-  View(M)
-  
-  # Backtracing
-  align1 = c(); align2 = c() # Note: length of final alignments is unknown at this point
-  
-  while(i > 1 && j > 1){
-    
-    if(D[i, j] == "dia") {
-      align1 = c(rownames(M)[i], align1)
-      align2 = c(colnames(M)[j], align2)
-      j = j - 1; i = i - 1  # update indices
-    } else if (D[i, j] == "ver") {
-      align1 = c(rownames(M)[i], align1)
-      align2 = c("-", align2) # vertical movement = gap for seq2
-      i = i - 1 # update indices
-    } else if (D[i, j] == "hor") {
-      align1 = c("-", align1) # horizontal movement = gap for seq1
-      align2 = c(colnames(M)[j], align2) 
-      j = j - 1 # update indices
-    } 
-    
+
+for (i in 2:(len1 + 1)){
+  for (j in 2:(len2 + 1)){
+    left = M[i, j - 1] + gap 
+    top = M[i - 1, j] + gap 
+    dia = ifelse(rownames(M)[i] == colnames(M)[j], 
+                 M[i - 1, j - 1] + match, 
+                 M[i - 1, j - 1] + mismatch)
+    M[i, j] = max(dia, left, top) 
+    D[i, j] = type[which.max(c(dia, left, top))] 
   }
+} 
+View(M)
+
+align1 = c()
+align2 = c() 
+
+while(i > 1 && j > 1){# Note that the values i and j still exist from the previous for loops and therefore will be 
+  #carried onto this while loop as the bottom right corner of the matrix or the max row/column values.
+    
+  if(D[i, j] == "dia") {
+    align1 = c(rownames(M)[i], align1)
+    align2 = c(colnames(M)[j], align2)
+    j = j - 1; i = i - 1 
+  } else if (D[i, j] == "top") {
+    align1 = c(rownames(M)[i], align1)
+    align2 = c("-", align2) 
+    i = i - 1 
+  } else if (D[i, j] == "left") {
+    align1 = c("-", align1) # 
+    align2 = c(colnames(M)[j], align2) 
+    j = j - 1 # 
+  } 
   
-  # Prepare output
-  return(list(aligned_seqs = matrix(c(align1, align2), byrow = TRUE, nrow = 2),
-              score = M[nrow(M), ncol(M)], score_matrix = M, movement_matrix = D))
- 
 }
+list(aligned_seqs = matrix(c(align1, align2), byrow = TRUE, nrow = 2),
+            score = M[nrow(M), ncol(M)], score_matrix = M, movement_matrix = D)
 
-
-
-needleman("ATTCGAC", "ATCAC", -2, -5, 1)
 ```
 Q3.1
 ```{r}
@@ -162,9 +153,9 @@ quantiles <- apply(temp1, 2, quantile, probs = c(0, 0.25, 0.5, 0.75, 1))
 
 melted_data <- melt(quantiles, varnames = c("Quantile", "Variable"))
 
-ggplot(melted_data, aes(x = Variable, y = value, fill = Variable)) +
+ggplot(melted_data, aes(x = Variable, y = value)) +
   geom_boxplot() +
-  labs(title = "Boxplot of Quantiles for Each Variable",
+  labs(title = "Boxplot of Quantiles for Each Base",
        x = "Base",
        y = "Base Score") +
   theme(axis.text.x = element_text(angle = 0, hjust = 1)) + theme_minimal() + 
@@ -277,7 +268,7 @@ length(dfME)
 length(dfL)
 length(dfMR)
 ```
-4 HIGH, 74 Moderate, 44 LOW, and 819 MODIFIER punitive impact variants.
+4 HIGH, 74 Moderate, 44 LOW, and 819 MODIFIER punitive impact variants. Notice how the sum of the categories add up to more than 836, the total amount of variants. This is because one variant may have a combination of traits or categories.
 
 Q5.6
 
@@ -334,9 +325,11 @@ for (i in 1:836){
   dsd[i,5] <- dsd[i,4] / (dsd[i,3] + dsd[i,4])
 }
 
-dsf <- dsd[dsd$VAF > 0.05,]
-
 boxplot(dsd$VAF)
+
+variants$VAF <- dsd$VAF
+dsf <- variants[variants$VAF > 0.05,]
+dsf$coding_regions <- grepl()
 
 
 ```
