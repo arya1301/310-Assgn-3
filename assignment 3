@@ -1,2 +1,69 @@
-title: "ASSIGNMENT - 3 - 310"
-authors: Pierce, Elizabeth, Arya 
+q1) it is hard to sequence areas with high GC content because G and C are linked by triple bonds as compared to double bonds between A and T nuceleotides. this makes these regions more stable. this increased stability can affect how the two DNA strands are separated to expose the bases for sequencing.
+
+```{r}
+#q2
+#function for filling scoring matrix based on needleman wunsch algorithm
+needleman_wunsch <- function(seq1, seq2, gap_penalty, match, mismatch) {
+  m <- nchar(seq1) + 1 # initializing rows
+  n <- nchar(seq2) + 1 # initializing columns
+  
+  # initializing scoring matrix
+  scoring_matrix <- matrix(0, nrow = m, ncol = n) 
+  
+  # fill in the first row and column with gap penalties
+  scoring_matrix[1,] <- seq(0, by = gap_penalty, length.out = n)
+  scoring_matrix[,1] <- seq(0, by = gap_penalty, length.out = m)
+
+  # filling in the rest of the matrix
+  for (i in 2:m) {
+    for (j in 2:n) {
+      match_score <- scoring_matrix[i-1, j-1] + (ifelse(substr(seq1, j-1, j-1) == substr(seq2, i-1, i-1), match, mismatch))
+      delete <- scoring_matrix[i-1, j] + gap_penalty
+      insert <- scoring_matrix[i, j-1] + gap_penalty
+      scoring_matrix[i, j] <- max(match_score, delete, insert)
+    }
+  }
+
+  return(scoring_matrix)
+}
+
+# Calculate the scoring matrix
+seq1 <- "ATTCGAC"
+seq2 <- "ATCAC"
+gap_penalty <- -2
+match <- 1
+mismatch <- -5
+
+scoring_matrix <- needleman_wunsch(seq1, seq2, gap_penalty, match, mismatch)
+
+# Display the scoring matrix
+print("Scoring Matrix:")
+print(scoring_matrix)
+
+
+
+```
+
+
+```{r}
+#q3.1
+read.csv("single_cell_RNA_seq_bam.sam", nrows=73, sep="\t", header=FALSE,
+fill=TRUE)
+```
+SN tag indicates reference sequence name and LN tag indicates reference sequence length 
+
+q3.2) length of X chromosome as determined from the header portion is LN:171031299 base pairs (first look for SN:X; this exists in row 22; look up row 22 in V3; the LN value gives length of X chromosome)
+```{r}
+#q4.1
+sam <- read.csv("single_cell_RNA_seq_bam.sam", sep="\t", header=FALSE,
+comment.char="@", col.names = paste0("V",seq_len(30)), fill=TRUE)
+sam <- sam[paste0("V",seq_len(11))]
+dim(sam)
+```
+there are 146346 rows i.e. that number of reads 
+```{r}
+#q4.2
+print(sam[10,])
+```
+V3 column shows us the name of the alignment reference sequence 
+V11 corresponds to QUAL field of BAM file and represents ASCII of base QUALity plus 33
